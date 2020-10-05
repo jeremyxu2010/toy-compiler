@@ -342,7 +342,7 @@ calculation: TMUL | TDIV | TPLUS | TMINUS;
 
 `codegen.h`
 
-```
+```cpp
 #include <stack>
 #include <typeinfo>
 #include <llvm/IR/Module.h>
@@ -397,7 +397,7 @@ public:
 
 `codegen.cpp`
 
-```
+```cpp
 #include "node.h"
 #include "codegen.h"
 #include "parser.hpp"
