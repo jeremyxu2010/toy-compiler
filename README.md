@@ -17,7 +17,7 @@ $ export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 `tokens.l`
 
-```
+```cpp
 %{
 #include <string>
 #include "node.h"
@@ -32,7 +32,7 @@ $ export PATH="/usr/local/opt/llvm/bin:$PATH"
 %%
 
 [ \t\n]					        ;
-"extern"                        return TOKEN(TEXTERN);
+"extern"                return TOKEN(TEXTERN);
 "return"				        return TOKEN(TRETURN);
 [a-zA-Z_][a-zA-Z0-9_]*  SAVE_TOKEN; return TIDENTIFIER;
 [0-9]+\.[0-9]* 			    SAVE_TOKEN; return TDOUBLE;
@@ -209,11 +209,11 @@ public:
 
 `parser.y`
 
-```
+```cpp
 %{
 	#include "node.h"
-    #include <cstdio>
-    #include <cstdlib>
+  #include <cstdio>
+  #include <cstdlib>
 	NBlock *programBlock; /* the top level root node of our final AST */
 
 	extern int yylex();
@@ -272,35 +272,35 @@ stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
 	  ;
 
 stmt : func_decl
-	 | var_decl
-	 | extern_decl
-	 | expr_call { $$ = new NExpressionStatement(*$1); }
-	 | expr_assign { $$ = new NExpressionStatement(*$1); }
-	 | TRETURN expr_call { $$ = new NReturnStatement(*$2); }
-	 | TRETURN expr_value { $$ = new NReturnStatement(*$2); }
-     ;
+	  | var_decl
+	  | extern_decl
+	  | expr_call { $$ = new NExpressionStatement(*$1); }
+	  | expr_assign { $$ = new NExpressionStatement(*$1); }
+	  | TRETURN expr_call { $$ = new NReturnStatement(*$2); }
+	  | TRETURN expr_value { $$ = new NReturnStatement(*$2); }
+    ;
 
 block : TLBRACE stmts TRBRACE { $$ = $2; }
 	  | TLBRACE TRBRACE { $$ = new NBlock(); }
 	  ;
 
 var_decl : ident ident { $$ = new NVariableDeclaration(*$1, *$2); }
-		 | ident ident TEQUAL expr_call { $$ = new NVariableDeclaration(*$1, *$2, $4); }
-		 | ident ident TEQUAL expr_value { $$ = new NVariableDeclaration(*$1, *$2, $4); }
-		 ;
+		| ident ident TEQUAL expr_call { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+		| ident ident TEQUAL expr_value { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+		;
 
 extern_decl : TEXTERN ident ident TLPAREN func_decl_args TRPAREN
                 { $$ = new NExternDeclaration(*$2, *$3, *$5); delete $5; }
-            ;
+    ;
 
 func_decl : ident ident TLPAREN func_decl_args TRPAREN block 
-			{ $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
-		  ;
+                { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
+		;
 	
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
-		  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-		  | func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
-		  ;
+		| var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+		| func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
+		;
 
 ident : TIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
 	  ;
@@ -310,25 +310,25 @@ numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
 		;
 
 expr_assign : ident TEQUAL expr_call { $$ = new NAssignment(*$<ident>1, *$3); }
-	 | ident TEQUAL expr_value { $$ = new NAssignment(*$<ident>1, *$3); }
-	 ;
+	  | ident TEQUAL expr_value { $$ = new NAssignment(*$<ident>1, *$3); }
+	  ;
 
 expr_call : ident TLPAREN call_args TRPAREN { $$ = new NMethodCall(*$1, *$3); delete $3; }
-	 ;
+	  ;
 
 expr_value: ident { $<ident>$ = $1; }
-	 | numeric
-	 | TLPAREN expr_value TRPAREN { $$ = $2; }
-	 | expr_value calculation expr_value %prec TMUL { $$ = new NBinaryOperator(*$1, $2, *$3); }
-	 | expr_value comparison expr_value %prec TCEQ { $$ = new NBinaryOperator(*$1, $2, *$3); }
-	 ;
+	  | numeric
+	  | TLPAREN expr_value TRPAREN { $$ = $2; }
+	  | expr_value calculation expr_value %prec TMUL { $$ = new NBinaryOperator(*$1, $2, *$3); }
+	  | expr_value comparison expr_value %prec TCEQ { $$ = new NBinaryOperator(*$1, $2, *$3); }
+	  ;
 	
 call_args : /*blank*/  { $$ = new ExpressionList(); }
-		  | expr_value { $$ = new ExpressionList(); $$->push_back($1); }
-		  | expr_call { $$ = new ExpressionList(); $$->push_back($1); }
-		  | call_args TCOMMA expr_value  { $1->push_back($3); }
-		  | call_args TCOMMA expr_call  { $1->push_back($3); }
-		  ;
+	  | expr_value { $$ = new ExpressionList(); $$->push_back($1); }
+		| expr_call { $$ = new ExpressionList(); $$->push_back($1); }
+		| call_args TCOMMA expr_value  { $1->push_back($3); }
+		| call_args TCOMMA expr_call  { $1->push_back($3); }
+		;
 
 comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE;
 
@@ -431,9 +431,9 @@ void CodeGenContext::generateCode(NBlock& root, std::string bcFile)
 	pm.run(*module);
 
 	std::error_code errInfo;
-    llvm::raw_ostream *out = new llvm::raw_fd_ostream(bcFile, errInfo, sys::fs::F_None);
-    llvm::WriteBitcodeToFile(*module, *out);
-    out->flush();
+  llvm::raw_ostream *out = new llvm::raw_fd_ostream(bcFile, errInfo, sys::fs::F_None);
+  llvm::WriteBitcodeToFile(*module, *out);
+  out->flush();
 	delete out;
 }
 
