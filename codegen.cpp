@@ -5,31 +5,36 @@
 using namespace std;
 
 /* Compile the AST into a module */
-void CodeGenContext::generateCode(NBlock& root)
+void CodeGenContext::generateCode(NBlock& root, std::string bcFile)
 {
 	std::cout << "Generating code...\n";
 	
 	/* Create the top level interpreter function to call as entry */
 	vector<Type*> argTypes;
-	FunctionType *ftype = FunctionType::get(Type::getVoidTy(MyContext), makeArrayRef(argTypes), false);
-	mainFunction = Function::Create(ftype, GlobalValue::InternalLinkage, "main", module);
+	FunctionType *ftype = FunctionType::get(Type::getInt32Ty(MyContext), makeArrayRef(argTypes), false);
+	mainFunction = Function::Create(ftype, GlobalValue::ExternalLinkage, "main", module);
 	BasicBlock *bblock = BasicBlock::Create(MyContext, "entry", mainFunction, 0);
 	
 	/* Push a new variable/block context */
 	pushBlock(bblock);
 	root.codeGen(*this); /* emit bytecode for the toplevel block */
-	ReturnInst::Create(MyContext, bblock);
+	ReturnInst::Create(MyContext, ConstantInt::get(Type::getInt32Ty(MyContext), 0), bblock);
 	popBlock();
 	
 	/* Print the bytecode in a human-readable format 
 	   to see if our program compiled properly
 	 */
 	std::cout << "Code is generated.\n";
-	// module->dump();
 
 	legacy::PassManager pm;
 	pm.add(createPrintModulePass(outs()));
 	pm.run(*module);
+
+	std::error_code errInfo;
+    llvm::raw_ostream *out = new llvm::raw_fd_ostream(bcFile, errInfo, sys::fs::F_None);
+    llvm::WriteBitcodeToFile(*module, *out);
+    out->flush();
+	delete out;
 }
 
 /* Executes the AST by running the main function */
@@ -153,7 +158,7 @@ Value* NReturnStatement::codeGen(CodeGenContext& context)
 Value* NVariableDeclaration::codeGen(CodeGenContext& context)
 {
 	std::cout << "Creating variable declaration " << type.name << " " << id.name << endl;
-	AllocaInst *alloc = new AllocaInst(typeOf(type), id.name.c_str(), context.currentBlock());
+	AllocaInst *alloc = new AllocaInst(typeOf(type), NULL, id.name.c_str(), context.currentBlock());
 	context.locals()[id.name] = alloc;
 	if (assignmentExpr != NULL) {
 		NAssignment assn(id, *assignmentExpr);
