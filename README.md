@@ -31,35 +31,35 @@ $ export PATH="/usr/local/opt/llvm/bin:$PATH"
 
 %%
 
-[ \t\n]					        ;
-"extern"                return TOKEN(TEXTERN);
-"return"				        return TOKEN(TRETURN);
-[a-zA-Z_][a-zA-Z0-9_]*  SAVE_TOKEN; return TIDENTIFIER;
-[0-9]+\.[0-9]* 			    SAVE_TOKEN; return TDOUBLE;
-[0-9]+					        SAVE_TOKEN; return TINTEGER;
+[ \t\n]						;
+"extern"					return TOKEN(TEXTERN);
+"return"					return TOKEN(TRETURN);
+[a-zA-Z_][a-zA-Z0-9_]*				SAVE_TOKEN; return TIDENTIFIER;
+[0-9]+\.[0-9]*					SAVE_TOKEN; return TDOUBLE;
+[0-9]+						SAVE_TOKEN; return TINTEGER;
 
-"="						          return TOKEN(TEQUAL);
-"=="				          	return TOKEN(TCEQ);
-"!="			          		return TOKEN(TCNE);
-"<"				          		return TOKEN(TCLT);
-"<="	          				return TOKEN(TCLE);
-">"				          		return TOKEN(TCGT);
-">="					          return TOKEN(TCGE);
+"="						return TOKEN(TEQUAL);
+"=="						return TOKEN(TCEQ);
+"!="						return TOKEN(TCNE);
+"<"						return TOKEN(TCLT);
+"<="						return TOKEN(TCLE);
+">"						return TOKEN(TCGT);
+">="						return TOKEN(TCGE);
 
-"("	          					return TOKEN(TLPAREN);
-")"					          	return TOKEN(TRPAREN);
-"{"         						return TOKEN(TLBRACE);
-"}"					          	return TOKEN(TRBRACE);
+"("						return TOKEN(TLPAREN);
+")"						return TOKEN(TRPAREN);
+"{"						return TOKEN(TLBRACE);
+"}"						return TOKEN(TRBRACE);
 
-"."         						return TOKEN(TDOT);
-","				          		return TOKEN(TCOMMA);
+"."						return TOKEN(TDOT);
+","						return TOKEN(TCOMMA);
 
-"+"				          		return TOKEN(TPLUS);
-"-"		          				return TOKEN(TMINUS);
-"*"		          				return TOKEN(TMUL);
-"/"				          		return TOKEN(TDIV);
+"+"						return TOKEN(TPLUS);
+"-"						return TOKEN(TMINUS);
+"*"						return TOKEN(TMUL);
+"/"						return TOKEN(TDIV);
 
-.                       printf("Unknown token!\n"); yyterminate();
+.						printf("Unknown token!\n"); yyterminate();
 
 %%
 
@@ -212,8 +212,8 @@ public:
 ```cpp
 %{
 	#include "node.h"
-  #include <cstdio>
-  #include <cstdlib>
+	#include <cstdio>
+	#include <cstdlib>
 	NBlock *programBlock; /* the top level root node of our final AST */
 
 	extern int yylex();
@@ -265,7 +265,7 @@ public:
 %%
 
 program : stmts { programBlock = $1; }
-		;
+	  ;
 		
 stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
 	  | stmts stmt { $1->statements.push_back($<stmt>2); }
@@ -278,36 +278,36 @@ stmt : func_decl
 	  | expr_assign { $$ = new NExpressionStatement(*$1); }
 	  | TRETURN expr_call { $$ = new NReturnStatement(*$2); }
 	  | TRETURN expr_value { $$ = new NReturnStatement(*$2); }
-    ;
+	  ;
 
 block : TLBRACE stmts TRBRACE { $$ = $2; }
 	  | TLBRACE TRBRACE { $$ = new NBlock(); }
 	  ;
 
 var_decl : ident ident { $$ = new NVariableDeclaration(*$1, *$2); }
-		| ident ident TEQUAL expr_call { $$ = new NVariableDeclaration(*$1, *$2, $4); }
-		| ident ident TEQUAL expr_value { $$ = new NVariableDeclaration(*$1, *$2, $4); }
-		;
+	  | ident ident TEQUAL expr_call { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+	  | ident ident TEQUAL expr_value { $$ = new NVariableDeclaration(*$1, *$2, $4); }
+	  ;
 
 extern_decl : TEXTERN ident ident TLPAREN func_decl_args TRPAREN
                 { $$ = new NExternDeclaration(*$2, *$3, *$5); delete $5; }
-    ;
+	  ;
 
 func_decl : ident ident TLPAREN func_decl_args TRPAREN block 
                 { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
-		;
+	  ;
 	
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
-		| var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
-		| func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
-		;
+	  | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
+	  | func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
+	  ;
 
 ident : TIDENTIFIER { $$ = new NIdentifier(*$1); delete $1; }
 	  ;
 
 numeric : TINTEGER { $$ = new NInteger(atol($1->c_str())); delete $1; }
-		| TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
-		;
+	  | TDOUBLE { $$ = new NDouble(atof($1->c_str())); delete $1; }
+	  ;
 
 expr_assign : ident TEQUAL expr_call { $$ = new NAssignment(*$<ident>1, *$3); }
 	  | ident TEQUAL expr_value { $$ = new NAssignment(*$<ident>1, *$3); }
@@ -325,10 +325,10 @@ expr_value: ident { $<ident>$ = $1; }
 	
 call_args : /*blank*/  { $$ = new ExpressionList(); }
 	  | expr_value { $$ = new ExpressionList(); $$->push_back($1); }
-		| expr_call { $$ = new ExpressionList(); $$->push_back($1); }
-		| call_args TCOMMA expr_value  { $1->push_back($3); }
-		| call_args TCOMMA expr_call  { $1->push_back($3); }
-		;
+	  | expr_call { $$ = new ExpressionList(); $$->push_back($1); }
+	  | call_args TCOMMA expr_value  { $1->push_back($3); }
+	  | call_args TCOMMA expr_call  { $1->push_back($3); }
+	  ;
 
 comparison : TCEQ | TCNE | TCLT | TCLE | TCGT | TCGE;
 
@@ -431,9 +431,9 @@ void CodeGenContext::generateCode(NBlock& root, std::string bcFile)
 	pm.run(*module);
 
 	std::error_code errInfo;
-  llvm::raw_ostream *out = new llvm::raw_fd_ostream(bcFile, errInfo, sys::fs::F_None);
-  llvm::WriteBitcodeToFile(*module, *out);
-  out->flush();
+	llvm::raw_ostream *out = new llvm::raw_fd_ostream(bcFile, errInfo, sys::fs::F_None);
+	llvm::WriteBitcodeToFile(*module, *out);
+	out->flush();
 	delete out;
 }
 
@@ -507,8 +507,8 @@ Value* NBinaryOperator::codeGen(CodeGenContext& context)
 	switch (op) {
 		case TPLUS: 	instr = Instruction::Add; goto math;
 		case TMINUS: 	instr = Instruction::Sub; goto math;
-		case TMUL: 		instr = Instruction::Mul; goto math;
-		case TDIV: 		instr = Instruction::SDiv; goto math;
+		case TMUL: 	instr = Instruction::Mul; goto math;
+		case TDIV: 	instr = Instruction::SDiv; goto math;
 				
 		/* TODO comparison */
 	}
@@ -593,7 +593,7 @@ Value* NFunctionDeclaration::codeGen(CodeGenContext& context)
 	context.pushBlock(bblock);
 
 	Function::arg_iterator argsValues = function->arg_begin();
-    Value* argumentValue;
+	Value* argumentValue;
 
 	for (it = arguments.begin(); it != arguments.end(); it++) {
 		(**it).codeGen(context);
