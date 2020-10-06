@@ -2,4 +2,8 @@
 parser.cpp
 parser.hpp
 tokens.cpp
+compiler
+test/example.bc
+test/example.S
+test/example.native
 .vscode
