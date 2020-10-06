@@ -9,8 +9,10 @@ OBJS = parser.o  \
 
 LLVMCONFIG = llvm-config
 CPPFLAGS = `$(LLVMCONFIG) --cppflags` -std=c++14
-LDFLAGS = `$(LLVMCONFIG) --ldflags` -lpthread -ldl -lz -lncurses -rdynamic
+LDFLAGS = `$(LLVMCONFIG) --ldflags` -lz -lncurses
 LIBS = `$(LLVMCONFIG) --libs`
+CC = clang
+CXX = clang++
 
 clean:
 	$(RM) -rf parser.cpp parser.hpp compiler tokens.cpp $(OBJS) test/example.bc test/example.S test/example.native
@@ -24,15 +26,15 @@ tokens.cpp: tokens.l parser.hpp
 	flex -o $@ $^
 
 %.o: %.cpp
-	g++ -c $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CPPFLAGS) -o $@ $<
 
 
 compiler: $(OBJS)
-	g++ -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
+	$(CXX) -o $@ $(OBJS) $(LIBS) $(LDFLAGS)
 
 compile: compiler test/example.txt
 	./compiler
 	sleep 1
 	llc test/example.bc -o test/example.S
 	sleep 1
-	gcc native.cpp test/example.S -o test/example.native
+	$(CXX) native.cpp test/example.S -o test/example.native
