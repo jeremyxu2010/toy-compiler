@@ -3,8 +3,8 @@
 #include "node.h"
 #include "parser.hpp"
 
-#define SAVE_TOKEN  yylval.string = new std::string(yytext, yyleng)
-#define TOKEN(t)    (yylval.token = t)
+#define STRING_TOKEN        yylval.string = new std::string(yytext, yyleng)
+#define KEYWORD_TOKEN(t)    yylval.token = t
 %}
 
 %option noyywrap
@@ -12,32 +12,33 @@
 %%
 
 [ \t\n]                                         ;
-"extern"                                        return TOKEN(TEXTERN);
-"return"                                        return TOKEN(TRETURN);
-[a-zA-Z_][a-zA-Z0-9_]*                          SAVE_TOKEN; return TIDENTIFIER;
-[0-9]+\.[0-9]*                                  SAVE_TOKEN; return TDOUBLE;
-[0-9]+                                          SAVE_TOKEN; return TINTEGER;
+"extern"                                        KEYWORD_TOKEN(TEXTERN); return TEXTERN;
+"return"                                        KEYWORD_TOKEN(TRETURN); return TRETURN;
 
-"="                                             return TOKEN(TEQUAL);
-"=="                                            return TOKEN(TCEQ);
-"!="                                            return TOKEN(TCNE);
-"<"                                             return TOKEN(TCLT);
-"<="                                            return TOKEN(TCLE);
-">"                                             return TOKEN(TCGT);
-">="                                            return TOKEN(TCGE);
+[a-zA-Z_][a-zA-Z0-9_]*                          STRING_TOKEN; return TIDENTIFIER;
+[0-9]+\.[0-9]*                                  STRING_TOKEN; return TDOUBLE;
+[0-9]+                                          STRING_TOKEN; return TINTEGER;
 
-"("                                             return TOKEN(TLPAREN);
-")"                                             return TOKEN(TRPAREN);
-"{"                                             return TOKEN(TLBRACE);
-"}"                                             return TOKEN(TRBRACE);
+"="                                             KEYWORD_TOKEN(TEQUAL); return TEQUAL;
+"=="                                            KEYWORD_TOKEN(TCEQ); return TCEQ;
+"!="                                            KEYWORD_TOKEN(TCNE); return TCNE;
+"<"                                             KEYWORD_TOKEN(TCLT); return TCLT;
+"<="                                            KEYWORD_TOKEN(TCLE); return TCLE;
+">"                                             KEYWORD_TOKEN(TCGT); return TCGT;
+">="                                            KEYWORD_TOKEN(TCGE); return TCGE;
 
-"."                                             return TOKEN(TDOT);
-","                                             return TOKEN(TCOMMA);
+"("                                             KEYWORD_TOKEN(TLPAREN); return TLPAREN;
+")"                                             KEYWORD_TOKEN(TRPAREN); return TRPAREN;
+"{"                                             KEYWORD_TOKEN(TLBRACE); return TLBRACE;
+"}"                                             KEYWORD_TOKEN(TRBRACE); return TRBRACE;
 
-"+"                                             return TOKEN(TPLUS);
-"-"                                             return TOKEN(TMINUS);
-"*"                                             return TOKEN(TMUL);
-"/"                                             return TOKEN(TDIV);
+"."                                             KEYWORD_TOKEN(TDOT); return TDOT;
+","                                             KEYWORD_TOKEN(TCOMMA); return TCOMMA;
+
+"+"                                             KEYWORD_TOKEN(TPLUS); return TPLUS;
+"-"                                             KEYWORD_TOKEN(TMINUS); return TMINUS;
+"*"                                             KEYWORD_TOKEN(TMUL); return TMUL;
+"/"                                             KEYWORD_TOKEN(TDIV); return TDIV;
 
 .                                               printf("Unknown token!\n"); yyterminate();
 
