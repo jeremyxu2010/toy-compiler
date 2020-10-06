@@ -32,5 +32,7 @@ compiler: $(OBJS)
 
 compile: compiler test/example.txt
 	./compiler
+	sleep 1
 	llc test/example.bc -o test/example.S
+	sleep 1
 	gcc native.cpp test/example.S -o test/example.native
