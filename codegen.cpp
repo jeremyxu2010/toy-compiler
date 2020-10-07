@@ -129,8 +129,9 @@ Value* NBlock::codeGen(CodeGenContext& context)
     StatementList::const_iterator it;
     Value *last = NULL;
     for (it = statements.begin(); it != statements.end(); it++) {
-        std::cout << "Generating code for " << typeid(**it).name() << endl;
-        last = (**it).codeGen(context);
+        auto& statement = **it;
+        std::cout << "Generating code for " << typeid(statement).name() << endl;
+        last = (statement).codeGen(context);
     }
     std::cout << "Creating block" << endl;
     return last;
@@ -153,7 +154,7 @@ Value* NReturnStatement::codeGen(CodeGenContext& context)
 Value* NVariableDeclaration::codeGen(CodeGenContext& context)
 {
     std::cout << "Creating variable declaration " << type.name << " " << id.name << endl;
-    AllocaInst *alloc = new AllocaInst(typeOf(type), NULL, id.name.c_str(), context.currentBlock());
+    AllocaInst *alloc = new AllocaInst(typeOf(type), 0, id.name.c_str(), context.currentBlock());
     context.locals()[id.name] = alloc;
     if (assignmentExpr != NULL) {
         NAssignment assn(id, *assignmentExpr);
