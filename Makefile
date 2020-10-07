@@ -1,4 +1,4 @@
-all: compile
+all: clean compile run
 
 OBJS = 	parser.o  \
 		codegen.o \
@@ -38,3 +38,6 @@ compile: compiler test/example.txt
 	llc test/example.bc -o test/example.S
 	sleep 1
 	$(CXX) native.cpp test/example.S -o test/example.native
+
+run:
+	./test/example.native
