@@ -1,11 +1,11 @@
 all: compile
 
-OBJS = parser.o  \
-       codegen.o \
-       main.o    \
-       tokens.o  \
-       corefn.o  \
-	   native.o  \
+OBJS = 	parser.o  \
+		codegen.o \
+		main.o    \
+		tokens.o  \
+		corefn.o  \
+		native.o  \
 
 LLVMCONFIG = llvm-config
 CPPFLAGS = `$(LLVMCONFIG) --cppflags` -std=c++14
@@ -19,7 +19,7 @@ clean:
 
 parser.cpp: parser.y
 	bison -d -o $@ $^
-	
+
 parser.hpp: parser.cpp
 
 tokens.cpp: tokens.l parser.hpp

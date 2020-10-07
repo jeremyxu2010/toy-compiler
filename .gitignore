@@ -7,3 +7,4 @@ test/example.bc
 test/example.S
 test/example.native
 .vscode
+.history

@@ -38,7 +38,7 @@ public:
 
     Module *module;
     CodeGenContext() { module = new Module("main", MyContext); }
-    
+
     void generateCode(NBlock& root, std::string bcFile);
     GenericValue runCode();
     std::map<std::string, Value*>& locals() { return blocks.top()->locals; }

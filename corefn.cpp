@@ -21,7 +21,7 @@ llvm::Function* createPrintfFunction(CodeGenContext& context)
                 printf_type, llvm::Function::ExternalLinkage,
                 llvm::Twine("printf"),
                 context.module
-           );
+                );
     func->setCallingConv(llvm::CallingConv::C);
     return func;
 }
@@ -39,10 +39,10 @@ void createEchoFunction(CodeGenContext& context, llvm::Function* printfFn)
                 echo_type, llvm::Function::InternalLinkage,
                 llvm::Twine("echo"),
                 context.module
-           );
+                );
     llvm::BasicBlock *bblock = llvm::BasicBlock::Create(MyContext, "entry", func, 0);
-	context.pushBlock(bblock);
-    
+    context.pushBlock(bblock);
+
     const char *constValue = "%d\n";
     llvm::Constant *format_const = llvm::ConstantDataArray::getString(MyContext, constValue);
     llvm::GlobalVariable *var =
@@ -56,7 +56,7 @@ void createEchoFunction(CodeGenContext& context, llvm::Function* printfFn)
     indices.push_back(zero);
     indices.push_back(zero);
     llvm::Constant *var_ref = llvm::ConstantExpr::getGetElementPtr(
-	llvm::ArrayType::get(llvm::IntegerType::get(MyContext, 8), strlen(constValue)+1),
+    llvm::ArrayType::get(llvm::IntegerType::get(MyContext, 8), strlen(constValue)+1),
         var, indices);
 
     std::vector<Value*> args;
@@ -66,13 +66,13 @@ void createEchoFunction(CodeGenContext& context, llvm::Function* printfFn)
     Value* toPrint = &*argsValues++;
     toPrint->setName("toPrint");
     args.push_back(toPrint);
-    
-	CallInst *call = CallInst::Create(printfFn, makeArrayRef(args), "", bblock);
-	ReturnInst::Create(MyContext, bblock);
-	context.popBlock();
+
+    CallInst *call = CallInst::Create(printfFn, makeArrayRef(args), "", bblock);
+    ReturnInst::Create(MyContext, bblock);
+    context.popBlock();
 }
 
 void createCoreFunctions(CodeGenContext& context){
-	llvm::Function* printfFn = createPrintfFunction(context);
+    llvm::Function* printfFn = createPrintfFunction(context);
     createEchoFunction(context, printfFn);
 }

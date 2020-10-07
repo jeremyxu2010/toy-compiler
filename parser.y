@@ -55,7 +55,7 @@
 %left TMINUS
 %left TPLUS
 %left TDIV
-%left TMUL 
+%left TMUL
 
 %start program
 
@@ -63,7 +63,7 @@
 
 program : stmts { programBlock = $1; }
          ;
-                
+
 stmts : stmt { $$ = new NBlock(); $$->statements.push_back($<stmt>1); }
          | stmts stmt { $1->statements.push_back($<stmt>2); }
          ;
@@ -90,10 +90,10 @@ extern_decl : TEXTERN ident ident TLPAREN func_decl_args TRPAREN
                 { $$ = new NExternDeclaration(*$2, *$3, *$5); delete $5; }
          ;
 
-func_decl : ident ident TLPAREN func_decl_args TRPAREN block 
+func_decl : ident ident TLPAREN func_decl_args TRPAREN block
                         { $$ = new NFunctionDeclaration(*$1, *$2, *$4, *$6); delete $4; }
          ;
-        
+
 func_decl_args : /*blank*/  { $$ = new VariableList(); }
          | var_decl { $$ = new VariableList(); $$->push_back($<var_decl>1); }
          | func_decl_args TCOMMA var_decl { $1->push_back($<var_decl>3); }
@@ -123,7 +123,7 @@ value_expr: ident { $<ident>$ = $1; }
          | operand_expr calculation operand_expr %prec TMUL { $$ = new NBinaryOperator(*$1, $2, *$3); }
          | operand_expr comparison operand_expr %prec TCEQ { $$ = new NBinaryOperator(*$1, $2, *$3); }
          ;
-        
+
 call_args : /*blank*/  { $$ = new ExpressionList(); }
          | value_expr { $$ = new ExpressionList(); $$->push_back($1); }
          | call_expr { $$ = new ExpressionList(); $$->push_back($1); }
